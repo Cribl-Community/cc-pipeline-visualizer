@@ -1,12 +1,13 @@
 # Cribl Pipeline Visualizer
 
-A Cribl App that opens an existing pipeline (in a pack or directly in a worker group) in an editor that looks and works like Cribl's own, and adds one thing Cribl lacks: a **before and after preview for each function**. Click any function to see the events just before it (IN) and just after it (OUT), with the changes highlighted. Then step through the pipeline one function at a time with ◀ ▶.
+A Cribl App that opens an existing pipeline (in a pack or directly in a worker group) in an editor that looks and works like Cribl's own, and adds one thing Cribl lacks: a **before and after preview for each function**. Click any function to see the events just before it (IN) and just after it (OUT), with the changes highlighted. Then step through the pipeline one function at a time with ‹ ›.
 
 It is useful for demoing what a single function does, and for finding the function that breaks your data.
 
 ## Features
 
-- **Pick a pipeline.** Under **Source**, choose **Packs** (the default) for Worker Group → Pack → Pipeline, or **Pipelines** for the worker group's own pipelines. Only Stream groups are listed.
+- **Start screen.** It shows how the preview works and asks what to open: **Open packs** for Worker Group → Pack → Pipeline, or **Open pipelines** for the worker group's own pipelines. Click the app title to return to it.
+- **Pick a pipeline.** Switch any time with the **Source** toggle (**Packs** | **Pipelines**) at the top. Only Stream groups are listed.
 - **Pipelines overview.** Once a pack (or worker group) is chosen, its pipelines are listed as on Cribl's Pipelines page: Route / Source, f(x), Destination, Description and the In / Out / Err event counts of the last 15 minutes. Filter the list, then click a pipeline to open it. **← Pipelines** (or the browser's Back button) returns to the list, so you can work through a pack one pipeline at a time.
 - **Links into the app.** The current place is kept in the URL, so you can bookmark or share it, and other tools can link straight to a pack or a pipeline (see [Deep links](#deep-links)).
 - **Edit it like in Cribl.** You get:
@@ -19,7 +20,7 @@ It is useful for demoing what a single function does, and for finding the functi
   - **Before & after one function** (the default): IN │ OUT side by side, highlighted diff (added / removed / changed / dropped) and per-function stats.
   - **Whole pipeline**: Cribl's Simple Preview, with field and byte % stats.
 - **Draggable splitter** between the editor and the preview. Double-click it to reset.
-- **Save / Cancel** at the bottom of the editor. Your edits stay in the app until you press Save. Save writes the pipeline to the pack, but nothing is committed or deployed. Commit and deploy from Cribl when you are ready.
+- **Save / Cancel** at the bottom of the editor. Your edits stay in the app until you press Save. Save writes the pipeline to the pack or worker group, but nothing is committed or deployed. Commit and deploy from Cribl when you are ready.
 
 ### How preview works
 
@@ -32,7 +33,7 @@ You need a Cribl Cloud workspace (or a Leader) on version 4.19 or later, with Ap
 1. In Cribl, open **Apps** and find **Cribl Pipeline Visualizer** in the app catalog. Or, under **Add App → Import from Git**, use `https://github.com/Cribl-Community/cc-pipeline-visualizer` with the ref `latest`. A `.tgz` from the [latest release](https://github.com/Cribl-Community/cc-pipeline-visualizer/releases/latest) works with **Import from File** too.
 2. Review the API permissions it asks for (listed below) and install.
 3. Grant access under **Apps → Cribl Pipeline Visualizer → Settings → Members & Teams**.
-4. Open the app, pick a worker group and pack, click a pipeline, choose a sample file and press **Run**.
+4. Open the app, choose **Open packs** or **Open pipelines**, pick a worker group (and pack), click a pipeline, choose a sample file and press **Run**.
 
 ### Deep links
 
@@ -49,7 +50,7 @@ Pack ids are matched case-insensitively. From another Cribl App, open the link w
 
 ### Permissions it asks for
 
-These are declared in [config/policies.yml](config/policies.yml):
+These are declared in [config/policies.yml](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/config/policies.yml):
 
 | API | Why |
 |---|---|
@@ -75,7 +76,7 @@ cp local.env.example local.env   # fill in your workspace URL and an API client 
 npm run dev:standalone           # http://127.0.0.1:5190
 ```
 
-In standalone mode, a Vite plugin ([scripts/standalone-plugin.mjs](scripts/standalone-plugin.mjs)) proxies API calls to your workspace. It uses the OAuth client in `local.env`, which never leaves your machine and is git-ignored.
+In standalone mode, a Vite plugin ([scripts/standalone-plugin.mjs](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/scripts/standalone-plugin.mjs)) proxies API calls to your workspace. It uses the OAuth client in `local.env`, which never leaves your machine and is git-ignored.
 
 | Script | What it does |
 |---|---|
@@ -86,9 +87,9 @@ In standalone mode, a Vite plugin ([scripts/standalone-plugin.mjs](scripts/stand
 
 The code lives in `src/`:
 
-- [src/App.tsx](src/App.tsx): layout, pickers, save and preview orchestration.
-- [src/components/](src/components/): pipelines overview, function list, settings forms, preview pane.
-- [src/lib/](src/lib/): API client, schema → form logic, pipeline and overview helpers, URL state.
+- [src/App.tsx](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/src/App.tsx): layout, pickers, save and preview orchestration.
+- [src/components/](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/src/components/): pipelines overview, function list, settings forms, preview pane.
+- [src/lib/](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/src/lib/): API client, schema → form logic, pipeline and overview helpers, URL state.
 
 
 ## Limitations
