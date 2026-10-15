@@ -1,0 +1,551 @@
+/* Start screen, styled after Pack Generator's home (its design-tokens.css and redesign.css). */
+.lp {
+  --lp-teal: #00b8b8;
+  --lp-teal-text: #006d6d;
+  --lp-teal-tint: #f0fffe;
+  --lp-teal-tint2: #e6fafa;
+  --lp-teal-wire: #8fdada;
+  --lp-page: #f5f7fa;
+  --lp-ink: #1a1a2e;
+  --lp-body: #595959;
+  --lp-muted: #737373;
+  --lp-line: #e8e8e8;
+  --lp-line2: #e3e8ee;
+  --lp-radius: 9px;
+  --lp-radius-card: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--lp-page);
+  padding: 24px;
+}
+.lp-inner {
+  max-width: 980px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--lp-line2);
+  border-radius: var(--lp-radius-card);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  padding: 24px 28px 28px;
+}
+.lp h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--lp-ink);
+  letter-spacing: -0.01em;
+}
+.lp-desc {
+  margin: 0 0 18px;
+  color: var(--lp-body);
+  line-height: 1.55;
+}
+
+/* Hero: goat, title and pitch on the left, the safety notes on the right */
+.lp-hero {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 360px);
+  border: 1px solid var(--lp-line);
+  border-radius: var(--lp-radius-card);
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: linear-gradient(
+    135deg,
+    var(--lp-teal-tint) 0%,
+    #fff 55%,
+    #f7f3ff 100%
+  );
+}
+.lp-hero-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  min-width: 0;
+}
+.lp-goat {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex: none;
+}
+.lp-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 2px 9px;
+  background: var(--lp-teal-tint2);
+  color: var(--lp-teal-text);
+}
+.lp-title {
+  margin: 4px 0 2px;
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--lp-ink);
+  line-height: 1.25;
+}
+.lp-sub {
+  margin: 0;
+  color: var(--lp-body);
+  font-size: 12.5px;
+}
+.lp-hero-side {
+  background: #fafbfc;
+  border-left: 1px solid var(--lp-line);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.lp-hero-side h4 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lp-muted);
+}
+.lp-hero-side ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 5px;
+}
+.lp-hero-side li {
+  display: flex;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--lp-body);
+}
+.lp-hero-side li i {
+  font-style: normal;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--lp-teal-tint2);
+  color: var(--lp-teal-text);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex: none;
+  margin-top: 1px;
+}
+
+.lp-eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--lp-muted);
+}
+
+/* How it works: a picture of the editor next to the numbered steps */
+.lp-tour {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 26px;
+  align-items: center;
+}
+/* The picture borrows the editor's own look (App.css tokens), so it reads as a screenshot. */
+.lp-screen {
+  border: 1px solid #cfd6de;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(16, 24, 40, 0.1);
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+}
+.lp-chrome {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  background: #eef1f4;
+  border-bottom: 1px solid #dfe3e8;
+}
+.lp-chrome i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #cfd6de;
+}
+.lp-chrome span {
+  margin-left: 8px;
+  font-size: 10.5px;
+  color: var(--lp-muted);
+}
+.lp-app {
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr;
+  min-height: 250px;
+  font-size: 11.5px;
+  color: var(--txt);
+}
+.lp-app-l {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  border-right: 1px solid var(--lp-line);
+}
+.lp-app-r {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  min-width: 0;
+}
+.lp-fn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid var(--in-b);
+  border-radius: 3px;
+  background: #fff;
+}
+.lp-fn.on {
+  border-color: var(--blue);
+  background: var(--blue-l);
+}
+.lp-fn-n {
+  width: 18px;
+  color: var(--mut);
+}
+.lp-fn-name {
+  flex: 1;
+}
+.lp-bull {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: var(--tgl-off);
+}
+.lp-fn.on .lp-bull {
+  color: var(--blue);
+  background: #fff;
+}
+.lp-fn .lp-pin {
+  position: absolute;
+  right: -12px;
+  top: -12px;
+}
+.lp-ctl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lp-lbl {
+  font-size: 10px;
+  color: var(--mut);
+}
+.lp-sel {
+  padding: 3px 8px;
+  border: 1px solid var(--in-b);
+  border-radius: 3px;
+  background: #fff;
+  white-space: nowrap;
+}
+.lp-run {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 3px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 600;
+}
+.lp-focus {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border: 1px solid var(--lp-line);
+  border-radius: 3px;
+  background: #f7f8fa;
+}
+.lp-focus .lp-pin {
+  position: absolute;
+  left: -10px;
+  top: -14px;
+}
+.lp-step {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--in-b);
+  border-radius: 3px;
+  background: #fff;
+}
+.lp-focus-n {
+  padding: 0 5px;
+  border-radius: 3px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 700;
+}
+.lp-stat {
+  margin-left: auto;
+  color: var(--mut);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.lp-seg {
+  position: relative;
+  display: inline-flex;
+  align-self: flex-start;
+  border: 1px solid var(--in-b);
+  border-radius: 3px;
+}
+.lp-seg > span:not(.lp-pin) {
+  padding: 2px 9px;
+  border-left: 1px solid var(--in-b);
+}
+.lp-seg > span:first-child {
+  border-left: 0;
+}
+.lp-seg .on {
+  background: var(--blue-l);
+  color: var(--blue);
+  font-weight: 600;
+}
+.lp-seg .lp-pin {
+  position: absolute;
+  right: -14px;
+  top: -12px;
+}
+.lp-io {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.lp-io > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--lp-line);
+  border-radius: 3px;
+  font-family: var(--code);
+  font-size: 10.5px;
+}
+.lp-io b {
+  font-family: var(--sans);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+.lp-io span {
+  padding: 0 3px;
+  border-radius: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lp-io .add {
+  background: var(--add);
+}
+.lp-io .chg {
+  background: var(--chg);
+}
+.lp-io .rem {
+  background: var(--rem);
+  text-decoration: line-through;
+}
+
+/* Numbered pins: dark annotations, deliberately unlike the teal of the buttons */
+.lp-pin {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--lp-ink);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  box-shadow:
+    0 0 0 3px #fff,
+    0 2px 6px rgba(0, 0, 0, 0.25);
+}
+/* Capra icons size to the font; keep them inside the small boxes of the picture */
+.lp-bull svg,
+.lp-step svg {
+  width: 12px;
+  height: 12px;
+}
+.lp-run svg {
+  width: 10px;
+  height: 10px;
+}
+.lp-inline-ic {
+  display: inline-flex;
+}
+.lp-inline-ic svg {
+  width: 16px;
+  height: 16px;
+}
+.lp-ring {
+  outline: 2px dashed var(--lp-ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.lp-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.lp-steps li {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+}
+.lp-steps .lp-pin {
+  box-shadow: none;
+}
+.lp-steps b {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--lp-ink);
+}
+.lp-steps .main b {
+  font-size: 16px;
+}
+.lp-steps p {
+  margin: 2px 0 0;
+  line-height: 1.55;
+  color: var(--lp-body);
+}
+.lp-inline-ic {
+  color: var(--blue);
+}
+.lp-ui {
+  padding: 0 5px;
+  border: 1px solid var(--in-b);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--txt);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.lp-rank {
+  margin-left: 4px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: var(--lp-teal-tint2);
+  color: var(--lp-teal-text);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Get started: the only things to click */
+.lp-choose {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--lp-line);
+}
+.lp h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--lp-ink);
+}
+.lp-modes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 14px;
+}
+.lp-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--lp-line);
+  border-radius: var(--lp-radius-card);
+  background: #fff;
+}
+.lp-choice-t {
+  flex: 1;
+  min-width: 0;
+}
+.lp-choice strong {
+  display: block;
+  white-space: nowrap;
+  font-size: 14px;
+  color: var(--lp-ink);
+}
+.lp-choice small {
+  color: var(--lp-muted);
+}
+.lp-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--lp-radius);
+  background: var(--lp-teal-tint2);
+  color: var(--lp-teal-text);
+  font-size: 18px;
+}
+.lp-btn {
+  flex: none;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--lp-teal);
+  color: #fff;
+  font: 700 13px var(--sans);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.lp-btn:hover {
+  background: #009a9a;
+}
+.lp-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--lp-teal-wire);
+}
+
+@media (max-width: 860px) {
+  .lp-tour {
+    grid-template-columns: 1fr;
+  }
+  .lp-hero {
+    grid-template-columns: 1fr;
+  }
+  .lp-hero-side {
+    border-left: none;
+    border-top: 1px solid var(--lp-line);
+  }
+}

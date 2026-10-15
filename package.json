@@ -1,0 +1,51 @@
+{
+  "name": "cc-pipeline-visualizer",
+  "private": true,
+  "version": "1.4.6",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:standalone": "vite --host 127.0.0.1 --port 5190 --strictPort",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "package": "npm run build && node scripts/package.mjs",
+    "test": "tsx --test src/lib/*.test.ts",
+    "publish:community": "node scripts/publish-community.mjs"
+  },
+  "dependencies": {
+    "@capra/core": "^1.14.1",
+    "@capra/icons": "^1.10.0",
+    "@capra/theme": "^1.6.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12",
+    "tsx": "^4.23.12"
+  },
+  "displayName": "Cribl Pipeline Visualizer",
+  "description": "Select any function in a Cribl Stream pipeline and see the events just before and just after it, IN and OUT side by side",
+  "author": "Wilfred van der Linde - wlinde@cribl.io",
+  "license": "Apache-2.0",
+  "cribl": {
+    "type": "app"
+  },
+  "tags": {
+    "product": [
+      "stream"
+    ]
+  },
+  "minLogStreamVersion": "4.19.0"
+}
