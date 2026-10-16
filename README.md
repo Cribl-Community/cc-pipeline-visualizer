@@ -97,3 +97,7 @@ The code lives in `src/`:
 - The app opens existing pipelines only; it doesn't create new ones.
 - Save doesn't commit or deploy.
 - Preview needs at least one sample file in the worker group.
+
+## Contributing
+
+This repository is generated from the app's development repository, so pull requests are ported there by a maintainer and ship in the next release. See [CONTRIBUTING.md](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/CONTRIBUTING.md).
