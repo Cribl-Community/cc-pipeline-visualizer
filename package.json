@@ -1,7 +1,7 @@
 {
   "name": "cc-pipeline-visualizer",
   "private": true,
-  "version": "1.4.7",
+  "version": "1.4.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -36,7 +36,7 @@
   },
   "displayName": "Cribl Pipeline Visualizer",
   "description": "Select any function in a Cribl Stream pipeline and see the events just before and just after it, IN and OUT side by side",
-  "author": "Wilfred van der Linde - fakeuser@cribl.io",
+  "author": "Wilfred van der Linde - wlinde@cribl.io",
   "license": "Apache-2.0",
   "cribl": {
     "type": "app"
