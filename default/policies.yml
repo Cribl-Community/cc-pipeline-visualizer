@@ -1,0 +1,76 @@
+# Product API access declaration. Declare Cribl product API paths your app needs to access.
+# At install time, admins see exactly which platform resources the app will use.
+
+policies:
+  # Selector bar: worker groups, then the packs in the chosen group.
+  - object: '/master/groups'
+    actions: ['GET']
+  - object: '/m/*/packs'
+    actions: ['GET']
+  # Pack pipelines. GET to list and open; PATCH saves the edited pipeline after the
+  # user confirms. POST creates and DELETE removes the scratch pipeline
+  # (ppc_scratch_preview), which the preview API needs because it only runs saved pipelines.
+  - object: '/m/*/p/*/pipelines'
+    actions: ['GET', 'POST']
+  - object: '/m/*/p/*/pipelines/*'
+    actions: ['GET', 'PATCH', 'DELETE']
+  # Function catalogue (names, groups, JSON schema) for the Add Function menu.
+  - object: '/m/*/p/*/functions'
+    actions: ['GET']
+  # Parser library for the Parser function's "Select from Library" picker.
+  - object: '/m/*/p/*/lib/parsers'
+    actions: ['GET']
+  # Read-only choices for function settings dropdowns: event breakers, lookup files,
+  # certificates and time zones.
+  - object: '/m/*/p/*/lib/breakers'
+    actions: ['GET']
+  - object: '/m/*/p/*/system/lookups'
+    actions: ['GET']
+  - object: '/m/*/system/certificates'
+    actions: ['GET']
+  - object: '/timezoneInfo'
+    actions: ['GET']
+  # Sample files (group and pack) for the Sample Data tab and the preview input.
+  - object: '/m/*/system/samples'
+    actions: ['GET']
+  - object: '/m/*/system/samples/*'
+    actions: ['GET']
+  - object: '/m/*/system/samples/*/content'
+    actions: ['GET']
+  - object: '/m/*/p/*/system/samples'
+    actions: ['GET']
+  - object: '/m/*/p/*/system/samples/*'
+    actions: ['GET']
+  - object: '/m/*/p/*/system/samples/*/content'
+    actions: ['GET']
+  # Runs a sample through the scratch pipeline (whole pipeline or a slice of it).
+  - object: '/m/*/p/*/preview'
+    actions: ['POST']
+  # Pipelines overview: routes and sources show what each pipeline is attached to and its
+  # destination; the metrics query gives the last-15-minute In/Out/Err counts (read-only).
+  - object: '/m/*/p/*/routes'
+    actions: ['GET']
+  - object: '/m/*/p/*/system/inputs'
+    actions: ['GET']
+  - object: '/system/metrics/query'
+    actions: ['POST']
+  # The same, for a worker group's own pipelines (Pack pipeline unchecked): /m/<group>/…
+  # instead of /m/<group>/p/<pack>/…. The scratch pipeline is then written to the group.
+  - object: '/m/*/pipelines'
+    actions: ['GET', 'POST']
+  - object: '/m/*/pipelines/*'
+    actions: ['GET', 'PATCH', 'DELETE']
+  - object: '/m/*/functions'
+    actions: ['GET']
+  - object: '/m/*/lib/parsers'
+    actions: ['GET']
+  - object: '/m/*/lib/breakers'
+    actions: ['GET']
+  - object: '/m/*/system/lookups'
+    actions: ['GET']
+  - object: '/m/*/preview'
+    actions: ['POST']
+  - object: '/m/*/routes'
+    actions: ['GET']
+  - object: '/m/*/system/inputs'
+    actions: ['GET']
