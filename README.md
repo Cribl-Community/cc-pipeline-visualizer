@@ -2,9 +2,11 @@
 
 A Cribl App that opens an existing pipeline (in a pack or directly in a worker group) in an editor that looks and works like Cribl's own, and adds one thing Cribl lacks: a **before and after preview for each function**. Click any function to see the events just before it (IN) and just after it (OUT), with the changes highlighted. Then step through the pipeline one function at a time with ‹ ›.
 
+## When to use this app
+
 It is useful for demoing what a single function does, and for finding the function that breaks your data.
 
-## Features
+## How to use
 
 - **Start screen.** It shows how the preview works and asks what to open: **Open packs** for Worker Group → Pack → Pipeline, or **Open pipelines** for the worker group's own pipelines. Click the app title to return to it.
 - **Pick a pipeline.** Switch any time with the **Source** toggle (**Packs** | **Pipelines**) at the top. Only Stream groups are listed.
@@ -26,14 +28,20 @@ It is useful for demoing what a single function does, and for finding the functi
 
 Cribl's preview API only runs saved pipelines. So when you press Run, the app writes your edits to a scratch pipeline called `ppc_scratch_preview` in the same pack (or worker group, for a group pipeline), and previews that. The real pipeline isn't touched until you press Save. You can remove the scratch pipeline from the preview pane. If you don't, the next Run reuses it.
 
-## Install
+## Before you install
 
-You need a Cribl Cloud workspace (or a Leader) on version 4.19 or later, with App Platform enabled.
+You need a Cribl Cloud workspace (or a Leader) on version 4.19 or later, with App Platform enabled, and a Cribl role that can read (and, to save, edit) pipelines in the worker group.
+
+## Installation
 
 1. In Cribl, open **Apps** and find **Cribl Pipeline Visualizer** in the app catalog. Or, under **Add App → Import from Git**, use `https://github.com/Cribl-Community/cc-pipeline-visualizer` with the ref `latest`. A `.tgz` from the [latest release](https://github.com/Cribl-Community/cc-pipeline-visualizer/releases/latest) works with **Import from File** too.
 2. Review the API permissions it asks for (listed below) and install.
 3. Grant access under **Apps → Cribl Pipeline Visualizer → Settings → Members & Teams**.
 4. Open the app, choose **Open packs** or **Open pipelines**, pick a worker group (and pack), click a pipeline, choose a sample file and press **Run**.
+
+## Configuration
+
+None. The app has no settings; what you can open and save follows your Cribl role.
 
 ### Deep links
 
@@ -48,7 +56,7 @@ Open the app at a specific pack or pipeline by adding a path to its URL. The pat
 
 Pack ids are matched case-insensitively. From another Cribl App, open the link with `<a href="/apps/a/cc-pipeline-visualizer/groups/…" target="_blank">`. Pressing the browser's Back button in a pipeline returns to the overview. The place is kept in the path, not the query string, because Cribl passes only the path to the app when the user goes Back. The older `?group=<group>&pack=<pack>&pipeline=<pipeline>` links still work and are rewritten to the path form.
 
-### Permissions it asks for
+## Permissions and external access
 
 These are declared in [config/policies.yml](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/config/policies.yml):
 
@@ -64,7 +72,14 @@ These are declared in [config/policies.yml](https://github.com/Cribl-Community/c
 | `GET /m/*/p/*/routes`, `GET /m/*/p/*/system/inputs` (and without `/p/*`) | Route / Source and Destination columns of the pipelines overview (read-only) |
 | `POST /system/metrics/query` | In / Out / Err counts of the overview (read-only query) |
 
-The app makes no external calls and stores nothing in the browser.
+External hosts: none. The app declares no proxies and makes no external calls.
+
+## Data and storage
+
+- The app stores nothing of its own: no settings, no app KV store, nothing in the browser.
+- Your edits stay in the page until you press **Save**, which writes the pipeline to its pack or worker group. Nothing is committed or deployed.
+- **Run** writes your edits to the scratch pipeline `ppc_scratch_preview` in the same pack or worker group. It stays there until you remove it from the preview pane, and the next Run reuses it.
+- Sample events are read from the worker group's sample files and sent only to your Cribl preview API.
 
 ## Development
 
@@ -92,11 +107,24 @@ The code lives in `src/`:
 - [src/lib/](https://github.com/Cribl-Community/cc-pipeline-visualizer/blob/main/src/lib/): API client, schema → form logic, pipeline and overview helpers, URL state.
 
 
-## Limitations
+## Known limitations and troubleshooting
 
 - The app opens existing pipelines only; it doesn't create new ones.
 - Save doesn't commit or deploy.
 - Preview needs at least one sample file in the worker group.
+- Only Stream worker groups are listed; Edge fleets are not supported.
+- A 403 when you open or save a pipeline means your Cribl role cannot read or edit pipelines in that worker group.
+
+## Support
+
+Open an issue in [Cribl-Community/cc-pipeline-visualizer](https://github.com/Cribl-Community/cc-pipeline-visualizer/issues). It is maintained by Wilfred van der Linde (Cribl Solutions Engineering), who aims to fix critical security issues within 10 days and high ones within 4 weeks.
+
+## Release notes
+
+- **1.4.9**: README covers support, data and storage, and limitations.
+- **1.4.6**: start screen that shows how the before-and-after preview works.
+- **1.4.0**: deep links to a pack or pipeline, and a pipelines overview with In / Out / Err counts.
+- **1.1.0**: worker group pipelines as well as pack pipelines.
 
 ## Contributing
 
