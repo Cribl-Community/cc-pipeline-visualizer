@@ -10,7 +10,9 @@ import type { ViewMode } from './components/EventView';
 import {
   SCRATCH_PIPELINE_ID,
   type PackId,
+  deleteScratchOnExit,
   deleteScratchPipeline,
+  isScratchPipeline,
   getPipeline,
   getSampleContent,
   listFunctions,
@@ -142,12 +144,12 @@ export default function App() {
   const [runError, setRunError] = useState<string | null>(null);
   const [shown, setShown] = useState<Shown | null>(null);
   const [hasRun, setHasRun] = useState(false);
-  // Packs where the user agreed to the scratch pipeline being written (this session only).
+  // The one confirmation dialog; its action may open the next one (save → overwrite).
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   // Pack whose API paths to use; null means the worker group's own paths (`/m/<group>/…`).
   const where: PackId = usePack ? pack : null;
   const ready = !!group && (!usePack || !!pack);
-  const formCtx = useMemo(() => ({ group, pack: where, pipelines: pipelines.map((p) => p.id).filter((id) => id !== SCRATCH_PIPELINE_ID) }), [group, where, pipelines]);
+  const formCtx = useMemo(() => ({ group, pack: where, pipelines: pipelines.map((p) => p.id).filter((id) => !isScratchPipeline(id)) }), [group, where, pipelines]);
 
   // Async-only bookkeeping; never read during render.
   // Width of the pipeline pane in %, dragged with the divider like Cribl's split view.
@@ -156,7 +158,10 @@ export default function App() {
   const cacheRef = useRef(new Map<string, PreviewResult>());
   const inflightRef = useRef(new Map<string, Promise<PreviewResult>>());
   const queueRef = useRef<Promise<unknown>>(Promise.resolve());
+  // Keyed `group|pack|sampleId`: the same sample id in another group is another sample.
   const sampleCacheRef = useRef(new Map<string, CriblEvent[]>());
+  // Scopes this tab wrote its scratch pipeline to, removed again when the tab closes.
+  const scratchScopesRef = useRef(new Map<string, { group: string; pack: PackId }>());
   // `group/pack` whose pipelines are loaded; late overview responses for another scope are dropped.
   const scopeRef = useRef('');
   // Pipeline in the URL at the last write; opening or leaving a pipeline adds a history entry.
@@ -178,6 +183,13 @@ export default function App() {
   const slot = useMemo(() => (conf && sampleId ? makeSlot(conf, scope, focusIndex, cacheScope, sampleId) : null), [conf, scope, focusIndex, cacheScope, sampleId]);
   const display = shown && shown.scope === scope && (scope === 'pipe' || shown.focusKey === focusKey) ? shown : null;
   const stale = !!display && !!slot && (display.inKey !== slot.inKey || display.outKey !== slot.outKey);
+
+  // The scratch pipeline is this tab's; take it with us. `pagehide` also fires on mobile and bfcache.
+  useEffect(() => {
+    const leave = () => deleteScratchOnExit([...scratchScopesRef.current.values()]);
+    window.addEventListener('pagehide', leave);
+    return () => window.removeEventListener('pagehide', leave);
+  }, []);
 
   useEffect(() => {
     if (!dirty) return;
@@ -498,7 +510,8 @@ export default function App() {
   // Load the chosen sample's events (shown as IN before the first run).
   useEffect(() => {
     if (!group || !sampleId) return;
-    const cached = sampleCacheRef.current.get(sampleId);
+    const cacheKey = `${group}|${where ?? ''}|${sampleId}`;
+    const cached = sampleCacheRef.current.get(cacheKey);
     if (cached) {
       setSampleEvents(cached);
       return;
@@ -508,7 +521,7 @@ export default function App() {
     setSampleEvents(null);
     getSampleContent(group, sampleId, where)
       .then((evs) => {
-        sampleCacheRef.current.set(sampleId, evs);
+        sampleCacheRef.current.set(cacheKey, evs);
         if (!cancelled) setSampleEvents(evs);
       })
       .catch((err: unknown) => !cancelled && Toast.error(`Could not load sample: ${message(err)}`))
@@ -529,6 +542,7 @@ export default function App() {
     if (pending) return pending;
     const g = group!;
     const pk = where;
+    scratchScopesRef.current.set(`${g}/${pk ?? ''}`, { group: g, pack: pk });
     const p = queueRef.current.then(() => runPreview(g, pk, c, sId));
     queueRef.current = p.catch(() => undefined);
     inflightRef.current.set(key, p);
@@ -700,17 +714,56 @@ export default function App() {
     }
   }
 
-  async function save() {
+  /** Save asks first, then re-reads the pipeline: a change made in Cribl meanwhile is not overwritten silently. */
+  function save() {
     if (!conf || !group || !ready || !pipelineId) return;
     const snapshot = conf;
-    try {
-      await savePipeline(group, where, pipelineId, snapshot);
-      setOriginal(JSON.stringify(snapshot));
-      setPipelines((ps) => ps.map((p) => (p.id === pipelineId ? { ...p, conf: snapshot } : p)));
-      Toast.success(`Saved ${pipelineId}. Commit and deploy in Cribl to make it live.`);
-    } catch (err) {
-      Toast.error(`Save failed: ${message(err)}`);
-    }
+    const g = group;
+    const pk = where;
+    const id = pipelineId;
+    const scope = pk ? `pack ${pk}` : `worker group ${g}`;
+    const write = async () => {
+      try {
+        await savePipeline(g, pk, id, snapshot);
+        setOriginal(JSON.stringify(snapshot));
+        setPipelines((ps) => ps.map((p) => (p.id === id ? { ...p, conf: snapshot } : p)));
+        Toast.success(`Saved ${id}. Commit and deploy in Cribl to make it live.`);
+      } catch (err) {
+        Toast.error(`Save failed: ${message(err)}`);
+      }
+    };
+    setConfirm({
+      title: `Save ${id}?`,
+      body: (
+        <p>
+          This replaces pipeline <code>{id}</code> in {scope} with your edited version. It is not committed or deployed: do that in Cribl when you are ready.
+        </p>
+      ),
+      confirmText: 'Save',
+      run: async () => {
+        let current: string;
+        try {
+          // Same shape as `original` (loadConf puts `functions` last), so equal confs compare equal.
+          const { functions, ...rest } = (await getPipeline(g, pk, id)).conf;
+          current = JSON.stringify({ ...rest, functions: functions ?? [] });
+        } catch (err) {
+          Toast.error(`Save failed: could not re-read ${id} before saving. ${message(err)}`);
+          return;
+        }
+        if (current === original) return write();
+        setConfirm({
+          title: `${id} changed in Cribl`,
+          body: (
+            <p>
+              Someone saved <code>{id}</code> after you opened it here. Saving now replaces their change with your version. Cancel keeps your edits in this
+              app; Revert would load theirs.
+            </p>
+          ),
+          confirmText: 'Overwrite their change',
+          run: write,
+        });
+      },
+    });
   }
 
   function revert() {

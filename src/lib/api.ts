@@ -3,7 +3,35 @@ import type { ConfigGroup, CriblEvent, FunctionMeta, FunctionStats, Input, Pack,
 
 // Pipeline the app writes previews into. The preview API only runs a *saved*
 // pipeline, so every preview overwrites this one with the conf being previewed.
-export const SCRATCH_PIPELINE_ID = 'ppc_scratch_preview';
+// One per browser tab: with a single shared name, two tabs or two users on the same pack
+// overwrote each other's scratch between the write and the preview, and each was shown the
+// other's results. The id carries its creation time so a later session can tell an abandoned
+// one from a live one.
+export const SCRATCH_PREFIX = 'ppc_scratch_';
+/** The fixed name every version up to 1.4.9 used; swept like any abandoned scratch. */
+export const LEGACY_SCRATCH_ID = 'ppc_scratch_preview';
+/** A scratch pipeline older than this belongs to a tab that is gone and is removed on sight. */
+export const SCRATCH_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+export function newScratchId(now = Date.now(), rand = Math.random): string {
+  return `${SCRATCH_PREFIX}${Math.floor(now / 1000).toString(36)}_${Math.floor(rand() * 36 ** 4).toString(36).padStart(4, '0')}`;
+}
+
+export const SCRATCH_PIPELINE_ID = newScratchId();
+
+export function isScratchPipeline(id: string): boolean {
+  return id.startsWith(SCRATCH_PREFIX);
+}
+
+/** Scratch pipelines that no live tab can still be using: the old fixed name, or older than a day. */
+export function staleScratchIds(ids: string[], now = Date.now(), own = SCRATCH_PIPELINE_ID): string[] {
+  return ids.filter((id) => {
+    if (id === own || !isScratchPipeline(id)) return false;
+    if (id === LEGACY_SCRATCH_ID) return true;
+    const born = parseInt(id.slice(SCRATCH_PREFIX.length).split('_')[0], 36) * 1000;
+    return Number.isFinite(born) && now - born > SCRATCH_MAX_AGE_MS;
+  });
+}
 
 const REQUEST_TIMEOUT_MS = 25_000;
 const MAX_ATTEMPTS = 3;
@@ -90,14 +118,25 @@ export async function listPacks(group: string): Promise<Pack[]> {
 
 export async function listPipelines(group: string, pack: PackId): Promise<Pipeline[]> {
   const data = await request<Items<Pipeline>>(`${scopeBase(group, pack)}/pipelines`);
+  const ids = (data.items ?? []).map((p) => p.id);
+  // Abandoned scratch pipelines are removed in the background; a failure leaves them for next time.
+  for (const id of staleScratchIds(ids)) void deletePipelineIfPresent(group, pack, id).catch(() => undefined);
   // The group list also has a `pack:<id>` entry per pack (the pack used as a pipeline); those are opened as packs.
-  return (data.items ?? []).filter((p) => p.id !== SCRATCH_PIPELINE_ID && !p.id.startsWith('pack:')).sort((a, b) => a.id.localeCompare(b.id));
+  return (data.items ?? []).filter((p) => !isScratchPipeline(p.id) && !p.id.startsWith('pack:')).sort((a, b) => a.id.localeCompare(b.id));
+}
+
+/** A pipeline id as a single path segment: not empty, no separator, not `.`/`..`. */
+export function isValidPipelineId(id: string): boolean {
+  return !!id && id !== '.' && id !== '..' && !/[/\\]/.test(id);
 }
 
 export async function getPipeline(group: string, pack: PackId, id: string): Promise<Pipeline> {
+  // An id from the link: `..` would normalise to the list endpoint and open its first pipeline
+  // under the wrong name.
+  if (!isValidPipelineId(id)) throw new ApiError(`Pipeline ${id} not found`, 404);
   const data = await request<Items<Pipeline>>(`${scopeBase(group, pack)}/pipelines/${enc(id)}`);
   const p = data.items?.[0];
-  if (!p?.conf) throw new ApiError(`Pipeline ${id} returned no configuration`, 404);
+  if (!p?.conf || p.id !== id) throw new ApiError(`Pipeline ${id} returned no configuration`, 404);
   return { id: p.id, conf: { ...p.conf, functions: p.conf.functions ?? [] } };
 }
 
@@ -238,12 +277,31 @@ export function savePipeline(group: string, pack: PackId, id: string, conf: Pipe
   return writePipeline(group, pack, id, conf, false);
 }
 
-export async function deleteScratchPipeline(group: string, pack: PackId) {
+async function deletePipelineIfPresent(group: string, pack: PackId, id: string) {
   try {
-    await request(`${scopeBase(group, pack)}/pipelines/${enc(SCRATCH_PIPELINE_ID)}`, { method: 'DELETE' });
+    await request(`${scopeBase(group, pack)}/pipelines/${enc(id)}`, { method: 'DELETE' });
   } catch (err) {
     if (isMissingPipeline(err)) return;
     throw err;
+  }
+}
+
+/** Remove this tab's scratch pipeline from the pack (or worker group). */
+export function deleteScratchPipeline(group: string, pack: PackId) {
+  return deletePipelineIfPresent(group, pack, SCRATCH_PIPELINE_ID);
+}
+
+/**
+ * Best-effort removal while the tab closes: `keepalive` lets the request outlive the page. If it
+ * does not get through, the next session sweeps the scratch once it is a day old.
+ */
+export function deleteScratchOnExit(scopes: { group: string; pack: PackId }[]) {
+  for (const { group, pack } of scopes) {
+    try {
+      void fetch(`${scopeBase(group, pack)}/pipelines/${enc(SCRATCH_PIPELINE_ID)}`, { method: 'DELETE', keepalive: true }).catch(() => undefined);
+    } catch {
+      /* the page is going away; nothing to report to */
+    }
   }
 }
 

@@ -8,8 +8,9 @@ policies:
   - object: '/m/*/packs'
     actions: ['GET']
   # Pack pipelines. GET to list and open; PATCH saves the edited pipeline after the
-  # user confirms. POST creates and DELETE removes the scratch pipeline
-  # (ppc_scratch_preview), which the preview API needs because it only runs saved pipelines.
+  # user confirms. POST creates and DELETE removes this tab's scratch pipeline
+  # (ppc_scratch_<time>_<random>, and the legacy ppc_scratch_preview), which the preview
+  # API needs because it only runs saved pipelines.
   - object: '/m/*/p/*/pipelines'
     actions: ['GET', 'POST']
   - object: '/m/*/p/*/pipelines/*'
@@ -33,13 +34,9 @@ policies:
   # Sample files (group and pack) for the Sample Data tab and the preview input.
   - object: '/m/*/system/samples'
     actions: ['GET']
-  - object: '/m/*/system/samples/*'
-    actions: ['GET']
   - object: '/m/*/system/samples/*/content'
     actions: ['GET']
   - object: '/m/*/p/*/system/samples'
-    actions: ['GET']
-  - object: '/m/*/p/*/system/samples/*'
     actions: ['GET']
   - object: '/m/*/p/*/system/samples/*/content'
     actions: ['GET']
